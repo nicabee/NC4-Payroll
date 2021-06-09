@@ -47,8 +47,8 @@ void getEmployeeInfo(struct employeeRec emp){
                     fflush(stdin);
                     printf("Enter the Salary Level:\n");
                     scanf("%d", &emp.salaryLevel);
-                    fwrite(&emp,sizeof(emp),1,fp);
-                    fflush(stdin);
+//                    fwrite(&emp,sizeof(emp),1,fp);
+//                    fflush(stdin);
 //                    printf("Enter the Salary Rate:\n");
 //                    scanf("%d", &emp.salaryRate);
 //                    printf("%d", emp.salaryRate);
@@ -81,11 +81,9 @@ void getEmployeeInfo(struct employeeRec emp){
 								printf("Salary Rate: Php %.2f /day", salaryRate);
 							}
                             getch();
-                            flag = 1;
                             break;
                         }
                     }
-                    (flag==1)?printf("") : printf("Employee not found!\n");
                     fclose(fp);
                     getch();
                     system("cls");
