@@ -45,7 +45,7 @@ void getEmployeeInfo(struct employeeRec emp){
 	int choice,ch,c,flag=0;
 	FILE *fp;
 	char* searchCode;
-	char scode[20];
+	char scode[20], employeecode[20];
 	float salaryRate;
    int i;
 	do 
@@ -54,7 +54,8 @@ void getEmployeeInfo(struct employeeRec emp){
 		 printf("\nMenu\n");
 		 printf("1. Add a new employee record. \n");
 		 printf("2. Search for a certain employee. \n");
-		 printf("3. Exit \n");
+		 printf("3. Read current time in and time outs per employee. \n");
+		 printf("4. Exit \n");
 		 scanf("%d",&choice);
 		  
 		 switch (choice)
@@ -100,8 +101,8 @@ void getEmployeeInfo(struct employeeRec emp){
 								printf("Salary Rate: Php %.2f /day\n", salaryRate);
 							}
 							
-							//writeToDTR(emp.employeeCode);
-							readFromDTR(emp.employeeCode);
+							writeToDTR(emp.employeeCode);
+							
                             getch();
                             break;
                         }
@@ -110,8 +111,17 @@ void getEmployeeInfo(struct employeeRec emp){
                     getch();
                     system("cls");
                     break;
-		     case 3: 
-				printf("Goodbye!\n"); 
+		     case 3:
+			 printf("Enter employee code to be Checked:\n");
+			 scanf("%s",employeecode);
+             fflush(stdin);
+             searchCode=convertToUpperCase(employeecode);
+		     readFromDTR(searchCode);
+		     	getch();
+				system("cls");
+		        break;
+		    case 4:
+		    	printf("Goodbye!\n"); 
 		        break;
 		     default: 
 			 	printf("Wrong Choice. Enter again\n");
@@ -119,7 +129,7 @@ void getEmployeeInfo(struct employeeRec emp){
 		      	system("cls");
 		        break;
 		 } 
-		} while (choice != 3);
+		} while (choice != 4);
 
 }
 
@@ -162,11 +172,12 @@ void readFromDTR(char employeeCode[]){
 	struct employee emp;
 	FILE* fp;
 	fp=fopen("dtr.txt","rb");
-	int x;
+	int x, flag=0;
 	char day[5];
     while(fread(&emp,sizeof(emp),1,fp))
     {
     	if(strcmp(employeeCode,emp.employeeCode)==0){
+    		flag = 1;
     		for(x=0;x<SIZE;x++){
     			printf("\t====================\t\t\n");
     			printf("\t\t%s\t\t\n", emp.information[x].weekDay);
@@ -184,6 +195,7 @@ void readFromDTR(char employeeCode[]){
     		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
 		}
     }
+    (flag == 1)? printf("") : printf("User not found!");
     fclose(fp);
 }
 char* convertToUpperCase(char arr[]){
