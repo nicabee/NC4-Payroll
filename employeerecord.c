@@ -1,3 +1,5 @@
+/* Final Requirement for NC4 by Barrientos, Monica B.*/
+
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>
@@ -53,7 +55,7 @@ void getEmployeeInfo(struct employeeRec emp){
 		 printf("\nEmployee Info\n");
 		 printf("\nMenu\n");
 		 printf("1. Add a new employee record. \n");
-		 printf("2. Search for a certain employee. \n");
+		 printf("2. Search for a certain employee and add their time-ins and time-outs. \n");
 		 printf("3. Read current time in and time outs per employee. \n");
 		 printf("4. Exit \n");
 		 scanf("%d",&choice);
