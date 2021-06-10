@@ -27,8 +27,8 @@ Run the project in your IDE!
 
 ## Functionalities
 
-- Create an employee record
-- Input logs of their time-ins and time-outs including overtime and holidays
+- Create an employee record using file system
+- Input logs of their time-ins and time-outs including overtime and holidays using file system
 
 ## Development
 
