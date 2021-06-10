@@ -2,7 +2,24 @@
 #include <conio.h>
 #include <string.h>
 #include<stdlib.h>
+#define SIZE 5
+const char *DayNames[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 
+struct time   
+{  
+    char weekDay[10]; 
+    char timeIn[10];
+    char timeOut[10];
+    int isHoliday;
+    char timeInOT[10];
+    char timeOutOT[10];
+};
+struct employee  
+{  
+    char employeeCode[20];  
+    struct time information[SIZE];  
+    char dateCovered[20];
+}; 
 
 struct employeeRec{
         char employeeCode[20];
@@ -10,6 +27,8 @@ struct employeeRec{
         int salaryLevel;
 };
 void getEmployeeInfo(struct employeeRec emp);
+void writeToDTR(char employeeCode[]);
+void readFromDTR(char employeeCode[]);
 char* convertToUpperCase(char arr[]);
 
 
@@ -28,8 +47,6 @@ void getEmployeeInfo(struct employeeRec emp){
 	char* searchCode;
 	char scode[20];
 	float salaryRate;
-	
-	char s[100] = "a01-0001";
    int i;
 	do 
 		{
@@ -74,14 +91,17 @@ void getEmployeeInfo(struct employeeRec emp){
                             printf("Salary Level: %d\n",emp.salaryLevel);
                             if(emp.salaryLevel == 1){
                             	salaryRate = 380.00;
-                            	printf("Salary Rate: Php %.2f /day", salaryRate);
+                            	printf("Salary Rate: Php %.2f /day\n", salaryRate);
 							}else if (emp.salaryLevel == 2){
 								salaryRate = 450.00;
-								printf("Salary Rate: Php %.2f /day", salaryRate);
+								printf("Salary Rate: Php %.2f /day\n", salaryRate);
 							}else if (emp.salaryLevel == 3){
 								salaryRate = 550.00;
-								printf("Salary Rate: Php %.2f /day", salaryRate);
+								printf("Salary Rate: Php %.2f /day\n", salaryRate);
 							}
+							
+							//writeToDTR(emp.employeeCode);
+							readFromDTR(emp.employeeCode);
                             getch();
                             break;
                         }
@@ -103,6 +123,69 @@ void getEmployeeInfo(struct employeeRec emp){
 
 }
 
+void writeToDTR(char employeeCode[]){
+	struct employee emp;  
+    FILE *fp;
+    int j,ans;
+    char res;
+    char scode[10];
+    
+    strcpy(emp.employeeCode,employeeCode);
+    fp=fopen("dtr.txt","ab");
+    for(j=0;j<SIZE;j++){
+    	strcpy(emp.information[j].weekDay, DayNames[j]);
+    	printf("Enter Time in for %s\n",DayNames[j]);
+    	scanf("%s",emp.information[j].timeIn);
+    	fflush(stdin);
+    	printf("Enter Time Out for %s\n",DayNames[j]);
+    	scanf ("%[^\n]%*c", emp.information[j].timeOut);
+    	fflush(stdin);
+    	printf("Is %s a holiday? Y/N \n", DayNames[j]);
+    	scanf("%c", &res);
+    	ans = (res=='Y' || res == 'y')? 1 : 0;
+    	emp.information[j].isHoliday = ans;
+    	printf("Enter the overtime-in for %s\n", DayNames[j]);
+    	scanf ("%s", emp.information[j].timeInOT);
+    	fflush(stdin);
+    	printf("Enter the overtime-out for %s\n", DayNames[j]);
+    	scanf ("%[^\n]%*c", emp.information[j].timeOutOT);
+    	fflush(stdin);
+	}
+	printf("Enter the coverage date of this payroll: (Ex. June 1-5, 2021)\n");
+	scanf ("%[^\n]%*c", emp.dateCovered);
+    fflush(stdin);
+    fwrite(&emp,sizeof(emp),1,fp);
+    fclose(fp);
+}
+
+void readFromDTR(char employeeCode[]){
+	struct employee emp;
+	FILE* fp;
+	fp=fopen("dtr.txt","rb");
+	int x;
+	char day[5];
+    while(fread(&emp,sizeof(emp),1,fp))
+    {
+    	if(strcmp(employeeCode,emp.employeeCode)==0){
+    		for(x=0;x<SIZE;x++){
+    			printf("\t====================\t\t\n");
+    			printf("\t\t%s\t\t\n", emp.information[x].weekDay);
+    			(emp.information[x].isHoliday == 1)?strcpy(day,"Holiday") : strcpy(day,"Regular");
+    			printf("\t\t%s\t\t\n",day);
+    			printf("Time In for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeIn);
+    			printf("Time Out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOut);
+    			if(strcmp(emp.information[x].timeInOT, "00:00") != 0 && strcmp(emp.information[x].timeOutOT, "00:00") != 0){
+    				printf("Overtime-in for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeInOT);
+    				printf("Overtime-out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOutOT);
+				}
+    			
+    			printf("\t====================\t\n");
+			}
+    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
+		}
+    }
+    fclose(fp);
+}
 char* convertToUpperCase(char arr[]){
 	char *retString = malloc (sizeof (char) * 256);
 	int i;
