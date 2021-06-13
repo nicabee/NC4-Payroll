@@ -29,7 +29,7 @@ Run the project in your IDE!
 
 - Create an employee record using file system
 - Input logs of their time-ins and time-outs including overtime and holidays using file system
-
+- Compute total number of work hours and OT hours (if applicable)
 ## Development
 
 Development is ongoing.
