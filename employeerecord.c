@@ -57,8 +57,8 @@ void getEmployeeInfo(struct employeeRec emp){
 //   hatdog = getLate("13:00");
 //   printf("hehe:%.1f\n", hatdog);
    float asd;
- //  asd= getTotalHours("13:00", "17:01");
-   asd = getOverTime("17:30", "19:45");
+   asd= getTotalHours("08:00", "16:30");
+  // asd = getOverTime("17:30", "19:45");
    printf("%.2f\n",asd);
 	
 	do 
@@ -248,7 +248,7 @@ int stringtoInt(char arr[]){
 }
 float getTotalHours(char timeIn[], char timeOut[]){
 	float returnHrs; 
-	int timeInInt, timeOutInt;
+	int timeInInt, timeOutInt, diff;
 	float lateval, vals, hrs;
 	timeInInt = stringtoInt(timeIn);
 	timeOutInt = stringtoInt(timeOut);
@@ -262,20 +262,27 @@ float getTotalHours(char timeIn[], char timeOut[]){
 			returnHrs = 8;
 		}else if (timeOutInt < 1700){
 			printf("Started on time but ended early\n");
-			//calculate undertime
-			returnHrs = 8;
+
 			out = timeOutInt/100; //hr for out
-			in = 1700/100;
-			vals = in - out; //undertime out minus 17 (17:00)
-		//	printf("dsa%.2f\n", vals);
-			outMod = timeOutInt%100; //mins for undertime out
-		//	printf("%d\n", outMod);
-			vals-=outMod/60.0;		
-			returnHrs-=vals;
+			in = timeInInt/100; //hr for in
+			vals = out - in;
+			outMod = timeOutInt%100; //mins for out
+			inMod = timeInInt%100; //mins for in
+			if(outMod < inMod){
+				diff = outMod - inMod;
+				diff += 60;
+				vals--;
+				returnHrs = vals + diff/100.0 - 1;
+			}else if (outMod > inMod){
+				diff = outMod - inMod;
+				returnHrs = vals + diff/100.0 - 1;
+			}else{
+				returnHrs = vals;
+			}	
 		}
 		
 	}else if (timeInInt > 800){ //late
-	//	timeOutInt - timeInInt //total work hrs
+
 		if(timeOutInt >= 1700){ //late and finishes at 17:00 or more but not OT
 		printf("Late but ended on time\n");
 			lateval = getLate(timeIn);
@@ -286,19 +293,19 @@ float getTotalHours(char timeIn[], char timeOut[]){
 			out = timeOutInt/100; //hr for out
 			in = timeInInt/100; //hr for in
 			vals = out - in;
-			//printf("%.2f\n", vals);
 			outMod = timeOutInt%100; //mins for out
-			//printf("%d\n", outMod);
-			//printf("%.2f\n", outMod/60.0);
 			inMod = timeInInt%100; //mins for in
-		//	printf("%.1f\n", inMod/60.0);
-			vals-=outMod/60.0;
-			vals-=inMod/60.0;
-			returnHrs = vals;
-			//printf("%.1f\n", vals);
-//			printf("%d\n",timeOutInt - timeInInt); //6.50
-//			returnHrs = timeOutInt - (int)lateval;
-//			printf("%d\n",returnHrs);
+			if(outMod < inMod){
+				diff = outMod - inMod;
+				diff += 60;
+				vals--;
+				returnHrs = vals + diff/100.0;
+			}else if (outMod > inMod){
+				diff = outMod - inMod;
+				returnHrs = vals + diff/100.0;
+			}else{
+				returnHrs = vals;
+			}
 		}
 	}else if (timeInInt < 800){ //early
 		if(timeOutInt >= 1700){ //early and finishes at 17:00 or more but not OT
@@ -306,36 +313,28 @@ float getTotalHours(char timeIn[], char timeOut[]){
 			in1 = timeInInt/100;
 			in2 = 800/100;
 			hrs = in2 - in1;
-		//	printf("hello%.2f\n", hrs);
 			in1Mod = timeInInt % 100;
-		//	printf("%d\n", timeInInt);
-		//	printf("%d\n", in1Mod);
 			hrs-=in1Mod/60.0;
-		//	printf("%.2f\n", hrs);
 			returnHrs = 8 + hrs; 
 		}else if (timeOutInt < 1700){ //early and undertime
 			printf("Early and ended early\n");
-			//get the time diff bet 8:00 and timeIn
-			in1 = timeInInt/100;
-			in2 = 800/100;
-			hrs = in2 - in1;
-		//	printf("hello%.2f\n", hrs);
-			in1Mod = timeInInt % 100;
-		//	printf("%d\n", timeInInt);
-		//	printf("%d\n", in1Mod);
-			hrs-=in1Mod/60.0;
-		//	printf("asd%.2f\n", hrs);
-			returnHrs = 8 + hrs;
 			
-			//calculate undertime
 			out = timeOutInt/100; //hr for out
-			in = 1700/100;
-			vals = in - out; //undertime out minus 17 (17:00)
-		//	printf("dsa%.2f\n", vals);
-			outMod = timeOutInt%100; //mins for undertime out
-		//	printf("%d\n", outMod);
-			vals-=outMod/60.0;		
-			returnHrs-=vals;
+			in = timeInInt/100; //hr for in
+			vals = out - in;
+			outMod = timeOutInt%100; //mins for out
+			inMod = timeInInt%100; //mins for in
+			if(outMod < inMod){
+				diff = outMod - inMod;
+				diff += 60;
+				vals--;
+				returnHrs = vals + diff/100.0;
+			}else if (outMod > inMod){
+				diff = outMod - inMod;
+				returnHrs = vals + diff/100.0;
+			}else{
+				returnHrs = vals;
+			}			
 		}
 	}else if (timeInInt == 0 || timeOutInt == 0){
 		printf("Absent\n");
@@ -353,7 +352,6 @@ float getOverTime(char timeIn[], char timeOut[]){
 
 	if(timeInInt < 1730){
 		
-		//time = timeOutInt - 1730; //out - 1730(start)
 		out = timeOutInt/100;
 		in = timeInInt/100;
 		hrs = out - in;
