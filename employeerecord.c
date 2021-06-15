@@ -30,12 +30,19 @@ struct employeeRec{
 };
 void getEmployeeInfo(struct employeeRec emp);
 void writeToDTR(char employeeCode[]);
-void readFromDTR(char employeeCode[]);
+void readFromDTR(char employeeCode[], float salaryRate);
 char* convertToUpperCase(char arr[]);
 int stringtoInt(char arr[]);
 float getTotalHours(char timeIn[], char timeOut[]);
 float getLate(char timeIn[]);
 float getOverTime(char timeIn[], char timeOut[]);
+float getSalaryRate(char employeeCode[]);
+float getRegularIncome(float totalWorkHours, float salaryRate);
+float getOvertimeIncome(float totalOThrs, float salaryRate);
+float getHolidayIncome(float totalHolidayhrs, float salaryRate);
+float getSSS(float grossIncome, float salaryRate);
+float getTax(float grossIncome);
+
 
 int main()
 {
@@ -51,15 +58,12 @@ void getEmployeeInfo(struct employeeRec emp){
 	FILE *fp;
 	char* searchCode;
 	char scode[20], employeecode[20];
-	float salaryRate;
-   int i;
-//   float hatdog;
-//   hatdog = getLate("13:00");
-//   printf("hehe:%.1f\n", hatdog);
-   float asd;
-   asd= getTotalHours("08:00", "16:30");
-  // asd = getOverTime("17:30", "19:45");
-   printf("%.2f\n",asd);
+	float salaryRate, sRate;
+   	int i;
+//   	float hatdog;
+//  	hatdog = getHolidayIncome(8, 380);
+//   	printf("hehe:%.2f\n", hatdog);
+
 	
 	do 
 		{
@@ -125,14 +129,15 @@ void getEmployeeInfo(struct employeeRec emp){
                     system("cls");
                     break;
 		     case 3:
-			 printf("Enter employee code to be Checked:\n");
-			 scanf("%s",employeecode);
-             fflush(stdin);
-             searchCode=convertToUpperCase(employeecode);
-		     readFromDTR(searchCode);
-		     	getch();
-				system("cls");
-		        break;
+				 printf("Enter employee code to be Checked:\n");
+				 scanf("%s",employeecode);
+	             fflush(stdin);
+	             searchCode=convertToUpperCase(employeecode);
+	             sRate =  getSalaryRate(searchCode);
+			     readFromDTR(searchCode, sRate);
+			     getch();
+				 system("cls");
+			     break;
 		    case 4:
 		    	printf("Goodbye!\n"); 
 		        break;
@@ -181,13 +186,40 @@ void writeToDTR(char employeeCode[]){
     fclose(fp);
 }
 
-void readFromDTR(char employeeCode[]){
+float getSalaryRate(char employeeCode[]){
+	struct employeeRec emp;  
+    FILE *fp;
+    float salaryRate;
+    fp=fopen("employee.txt","rb");
+    while(fread(&emp,sizeof(emp),1,fp))
+    {
+    	if(strcmp(employeeCode,emp.employeeCode)==0){
+            printf("Employee Name: %s\n",emp.employeeCode);
+            printf("Employee Code: %s\n",emp.employeename);
+            printf("Salary Level: %d\n",emp.salaryLevel);
+            if(emp.salaryLevel == 1){
+                salaryRate = 380.00;
+                printf("Salary Rate: Php %.2f /day\n", salaryRate);
+			}else if (emp.salaryLevel == 2){
+				salaryRate = 450.00;
+				printf("Salary Rate: Php %.2f /day\n", salaryRate);
+			}else if (emp.salaryLevel == 3){
+				salaryRate = 550.00;
+				printf("Salary Rate: Php %.2f /day\n", salaryRate);
+			}
+                        
+        }
+    }
+    
+    return salaryRate;
+}
+void readFromDTR(char employeeCode[], float salaryRate){
 	struct employee emp;
 	FILE* fp;
 	fp=fopen("dtr.txt","rb");
 	int x, flag=0;
 	char day[5];
-	float TotalHours = 0, retHrs = 0, totalOvertime=0, retOThrs=0;
+	float TotalHours = 0, retHrs = 0, totalOvertime=0, totalHoliday=0, retOThrs=0, regularInc, OTInc, holidayInc, sss, tax, grossIncome;
     while(fread(&emp,sizeof(emp),1,fp))
     {
     	if(strcmp(employeeCode,emp.employeeCode)==0){
@@ -204,13 +236,15 @@ void readFromDTR(char employeeCode[]){
     				
     				TotalHours+=retHrs;
 				}else{
-					totalOvertime+=retHrs;
+					printf("HOLIDAY HRS: %.2f\n", retHrs);
+					totalHoliday+=retHrs;
 				}
     			
     			if(strcmp(emp.information[x].timeInOT, "00:00") != 0 && strcmp(emp.information[x].timeOutOT, "00:00") != 0){
     				printf("Overtime-in for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeInOT);
     				printf("Overtime-out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOutOT);
     				retOThrs = getOverTime(emp.information[x].timeInOT,emp.information[x].timeOutOT);
+    				printf("OT HRS: %.2f\n", retOThrs);
     				totalOvertime+=retOThrs;
 				}
     			
@@ -220,8 +254,24 @@ void readFromDTR(char employeeCode[]){
 		}
     }
     if(flag == 1){
-    	printf("Total Number of Work Hours:%.2f\n",TotalHours);
-    printf("Overtime Hours:%.2f\n",totalOvertime);
+    	printf("Total Number of Work Hours:%.0f\n",TotalHours);
+    	printf("Total Number of Holiday Work Hours:%.0f\n",totalHoliday);
+    	printf("Overtime Hours:%.0f\n",totalOvertime);
+    	regularInc = getRegularIncome(TotalHours, salaryRate);
+    	printf("Regular Income: Php %.2f\n",regularInc);
+    	holidayInc = getHolidayIncome(totalHoliday, salaryRate);
+    	printf("Holiday Income: Php %.2f\n",holidayInc);
+    	OTInc = getOvertimeIncome(totalOvertime, salaryRate);
+    	printf("Overtime Income: Php %.2f\n",OTInc);
+		grossIncome = OTInc + regularInc + holidayInc;
+    	printf("Gross Income: Php %.2f\n", grossIncome);
+    	
+    	//Deductions
+    	tax = getTax(grossIncome);
+    	printf("*Tax: Php %.2f\n", tax);
+    	sss = getSSS(grossIncome, salaryRate);
+    	printf("*SSS: Php %.2f\n", sss);
+    	printf("Net Income: %.2f\n", grossIncome - (tax + sss) + 500);
 	}else{
 		printf("User not found!");
 	}
@@ -245,6 +295,63 @@ int stringtoInt(char arr[]){
     //printf("string val = %s, int value = %d\n", arr, d);
     retVal = d;
     return retVal;
+}
+
+
+float getRegularIncome(float totalWorkHours, float salaryRate){
+	float regIncome = 0;
+	
+	if (totalWorkHours > 0){
+		salaryRate/=8;
+		regIncome=salaryRate*totalWorkHours;
+	}
+	return regIncome;
+}
+float getHolidayIncome(float totalHolidayhrs, float salaryRate){
+	float HolidayIncome = 0;
+
+	if(totalHolidayhrs > 0){
+		salaryRate/=8;
+		salaryRate*=1.1;
+		HolidayIncome = totalHolidayhrs * salaryRate;
+	}
+	return HolidayIncome;
+}
+float getOvertimeIncome(float totalOThrs, float salaryRate){
+	float OtIncome = 0;
+	
+	if (totalOThrs > 0){
+		salaryRate/=8;
+		salaryRate*=1.1;
+		OtIncome=totalOThrs * salaryRate;
+	}
+	return OtIncome;
+}
+
+float getTax(float grossIncome){
+	float tax = 0, rate;
+	
+	if(grossIncome > 0){
+		tax = grossIncome * 0.1;
+	}
+	return tax;
+}
+
+float getSSS(float grossIncome, float salaryRate){
+	float sss = 0, rate;
+	
+	if(grossIncome > 0){
+		if(salaryRate == 380.00){
+			rate = 0.01;
+		}else if (salaryRate == 450){
+			rate = 0.015;
+		}else{
+			rate = 0.02;
+		}
+		
+		sss = grossIncome * rate;
+	}
+	return sss;
 }
 float getTotalHours(char timeIn[], char timeOut[]){
 	float returnHrs; 
