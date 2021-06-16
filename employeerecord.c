@@ -48,11 +48,7 @@ int main()
 {
  	struct employeeRec emp;
 	printf("\nWelcome to NC4 Payroll System by Monica B. Barrientos\n");
-	float test;
-	test = getTotalHours("00:00", "00:00"); //7.45
-	printf("%.2f\n", test);
 	getEmployeeInfo(emp);
-
 
 }
 
@@ -254,24 +250,29 @@ float getSalaryRate(char employeeCode[]){
     FILE *fp;
     float salaryRate;
     fp=fopen("employee.txt","rb");
-    while(fread(&emp,sizeof(emp),1,fp))
-    {
-    	if(strcmp(employeeCode,emp.employeeCode)==0){
-            printf("Employee Name: %s\n",emp.employeeCode);
-            printf("Employee Code: %s\n",emp.employeename);
-            printf("Salary Level: %d\n",emp.salaryLevel);
-            if(emp.salaryLevel == 1){
-                salaryRate = 380.00;
-                printf("Salary Rate: Php %.2f /day\n", salaryRate);
-			}else if (emp.salaryLevel == 2){
-				salaryRate = 450.00;
-				printf("Salary Rate: Php %.2f /day\n", salaryRate);
-			}else if (emp.salaryLevel == 3){
-				salaryRate = 550.00;
-				printf("Salary Rate: Php %.2f /day\n", salaryRate);
-			}         
-        }
-    }
+    if(fp!=NULL){
+     	while(fread(&emp,sizeof(emp),1,fp))
+	    {
+	    	if(strcmp(employeeCode,emp.employeeCode)==0){
+	            printf("Employee Name: %s\n",emp.employeeCode);
+	            printf("Employee Code: %s\n",emp.employeename);
+	            printf("Salary Level: %d\n",emp.salaryLevel);
+	            if(emp.salaryLevel == 1){
+	                salaryRate = 380.00;
+	                printf("Salary Rate: Php %.2f /day\n", salaryRate);
+				}else if (emp.salaryLevel == 2){
+					salaryRate = 450.00;
+					printf("Salary Rate: Php %.2f /day\n", salaryRate);
+				}else if (emp.salaryLevel == 3){
+					salaryRate = 550.00;
+					printf("Salary Rate: Php %.2f /day\n", salaryRate);
+				}         
+	        }
+	    }   	
+	}else{
+		printf("Unable to open file for salary rate!\n");
+	}
+
     return salaryRate;
 }
 void readFromDTR(char employeeCode[], float salaryRate){
@@ -281,39 +282,43 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	int x, flag=0;
 	char day[5];
 	float TotalHours = 0, retHrs = 0, totalOvertime=0, totalHoliday=0, retOThrs=0, regularInc, OTInc, holidayInc, sss, tax, grossIncome;
-    while(fread(&emp,sizeof(emp),1,fp))
-    {
-    	if(strcmp(employeeCode,emp.employeeCode)==0){
-    		flag = 1;
-    		for(x=0;x<SIZE;x++){
-    			printf("\t====================\t\t\n");
-    			printf("\t\t%s\t\t\n", emp.information[x].weekDay);
-    			(emp.information[x].isHoliday == 1)?strcpy(day,"Holiday") : strcpy(day,"Regular");
-    			printf("\t\t%s\t\t\n",day);
-    			printf("Time In for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeIn);
-    			printf("Time Out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOut);
-    			retHrs = getTotalHours(emp.information[x].timeIn, emp.information[x].timeOut);
-    			if(emp.information[x].isHoliday == 0){
-    				
-    				TotalHours+=retHrs;
-				}else{
-					printf("HOLIDAY HRS: %.2f\n", retHrs);
-					totalHoliday+=retHrs;
+	if(fp!=NULL){
+		
+	
+	    while(fread(&emp,sizeof(emp),1,fp))
+	    {
+	    	if(strcmp(employeeCode,emp.employeeCode)==0){
+	    		flag = 1;
+	    		for(x=0;x<SIZE;x++){
+	    			printf("\t====================\t\t\n");
+	    			printf("\t\t%s\t\t\n", emp.information[x].weekDay);
+	    			(emp.information[x].isHoliday == 1)?strcpy(day,"Holiday") : strcpy(day,"Regular");
+	    			printf("\t\t%s\t\t\n",day);
+	    			printf("Time In for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeIn);
+	    			printf("Time Out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOut);
+	    			retHrs = getTotalHours(emp.information[x].timeIn, emp.information[x].timeOut);
+	    			if(emp.information[x].isHoliday == 0){
+	    				
+	    				TotalHours+=retHrs;
+					}else{
+						totalHoliday+=retHrs;
+					}
+	    			
+	    			if(strcmp(emp.information[x].timeInOT, "00:00") != 0 && strcmp(emp.information[x].timeOutOT, "00:00") != 0){
+	    				printf("Overtime-in for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeInOT);
+	    				printf("Overtime-out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOutOT);
+	    				retOThrs = getOverTime(emp.information[x].timeInOT,emp.information[x].timeOutOT);
+	    				totalOvertime+=retOThrs;
+					}
+	    			
+	    			printf("\t====================\t\n");
 				}
-    			
-    			if(strcmp(emp.information[x].timeInOT, "00:00") != 0 && strcmp(emp.information[x].timeOutOT, "00:00") != 0){
-    				printf("Overtime-in for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeInOT);
-    				printf("Overtime-out for %s: %s\n", emp.information[x].weekDay, emp.information[x].timeOutOT);
-    				retOThrs = getOverTime(emp.information[x].timeInOT,emp.information[x].timeOutOT);
-    				printf("OT HRS: %.2f\n", retOThrs);
-    				totalOvertime+=retOThrs;
-				}
-    			
-    			printf("\t====================\t\n");
+	    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
 			}
-    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
-		}
-    }
+	    }
+	}else{
+		printf("Unable to open dtr.txt file!\n");
+	}
     if(flag == 1){
     	//Work hours
     	printf("Total Number of Work Hours:%.0f\n",TotalHours);
@@ -368,6 +373,7 @@ float getRegularIncome(float totalWorkHours, float salaryRate){
 	}
 	return regIncome;
 }
+
 float getHolidayIncome(float totalHolidayhrs, float salaryRate){
 	float HolidayIncome = 0;
 
@@ -378,6 +384,7 @@ float getHolidayIncome(float totalHolidayhrs, float salaryRate){
 	}
 	return HolidayIncome;
 }
+
 float getOvertimeIncome(float totalOThrs, float salaryRate){
 	float OtIncome = 0;
 	
@@ -519,10 +526,8 @@ float getTotalHours(char timeIn[], char timeOut[]){
 			}			
 		}
 	}else if (timeInInt == 0 && timeOutInt == 0){
-		printf("Absent\n");
 		returnHrs = 0;
 	}
-	
 	return returnHrs;
 }
 
