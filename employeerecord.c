@@ -22,7 +22,9 @@ struct employee
     char employeeCode[20];  
     struct time information[SIZE];  
     char dateCovered[20];
-    char recordGenerated[50];
+    char recordGeneratedMonth[10];
+    int recordGeneratedDay;
+    int recordGeneratedYear;
 }; 
 
 struct employeeRec{
@@ -253,7 +255,13 @@ void writeToDTR(char employeeCode[]){
 	printf("Enter the coverage date of this payroll: (Ex. June 1-5, 2021)\n");
 	scanf ("%[^\n]%*c", emp.dateCovered);
     fflush(stdin);
-    strcpy(emp.recordGenerated,ctime(&t));
+    printf("Input the month today:\n");
+	scanf ("%[^\n]%*c", emp.recordGeneratedMonth);
+    fflush(stdin);
+    printf("Input the day today:\n");
+	scanf ("%d", &emp.recordGeneratedDay);
+    printf("Input the year today:\n");
+	scanf ("%d", &emp.recordGeneratedYear);	
     fwrite(&emp,sizeof(emp),1,fp);
     fclose(fp);
 }
@@ -327,7 +335,8 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	    			printf("\t====================\t\n");
 				}
 	    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
-	    		printf("This record was made on: %s\t\t\n", emp.recordGenerated);
+	    		printf("This record was made on: %s %d, %d\n", emp.recordGeneratedMonth, emp.recordGeneratedDay, emp.recordGeneratedYear);
+	    		printf("\t====================\t\n");
 			}
 	    }
 	}else{
@@ -550,7 +559,7 @@ float getTotalHours(char timeIn[], char timeOut[]){
 		}
 	}else if (timeInInt < 800 && timeInInt > 0){ //early
 		if(timeOutInt >= 1700){ //early and finishes at 17:00 or more but not OT
-			printf("Early but ended on time\n");
+			//printf("Early but ended on time\n");
 			returnHrs = 8; 
 		}else if (timeOutInt < 1700){ //early and undertime
 			//printf("Early and ended early\n");
