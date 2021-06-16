@@ -30,20 +30,26 @@ struct employeeRec{
     char employeename[50];
     int salaryLevel;
 };
-
+/* Basic Input functions */
 void getEmployeeInfo(struct employeeRec emp);
+/* File handling functions */
 void writeToDTR(char employeeCode[]);
 void readFromDTR(char employeeCode[], float salaryRate);
+/* Conversion functions */
 char* convertToUpperCase(char arr[]);
 int stringtoInt(char arr[]);
+/* Working hours calculation functions */
 float getTotalHours(char timeIn[], char timeOut[]);
 float getOverTime(char timeIn[], char timeOut[]);
 float getSalaryRate(char employeeCode[]);
+/* Income calculation functions */
 float getRegularIncome(float totalWorkHours, float salaryRate);
 float getOvertimeIncome(float totalOThrs, float salaryRate);
 float getHolidayIncome(float totalHolidayhrs, float salaryRate);
+/* Deduction calculation functions */
 float getSSS(float grossIncome, float salaryRate);
 float getTax(float grossIncome);
+/* Error Trapping Functions */
 int checkTimeInput(char arr[]);
 
 int main()
