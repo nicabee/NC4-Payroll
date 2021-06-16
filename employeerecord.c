@@ -4,8 +4,8 @@
 #include <conio.h>
 #include <string.h>
 #include<stdlib.h>
-#include<time.h>
 #define SIZE 5
+
 const char *DayNames[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 
 struct time   
@@ -215,9 +215,7 @@ void writeToDTR(char employeeCode[]){
     char res;
     char scode[10];
     int a;
-    time_t t;   
-    time(&t);
-    
+
     strcpy(emp.employeeCode,employeeCode);
     fp=fopen("dtr.txt","ab");
     for(j=0;j<SIZE;j++){
