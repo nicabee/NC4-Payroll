@@ -24,17 +24,17 @@ struct employee
 }; 
 
 struct employeeRec{
-        char employeeCode[20];
-        char employeename[50];
-        int salaryLevel;
+    char employeeCode[20];
+    char employeename[50];
+    int salaryLevel;
 };
+
 void getEmployeeInfo(struct employeeRec emp);
 void writeToDTR(char employeeCode[]);
 void readFromDTR(char employeeCode[], float salaryRate);
 char* convertToUpperCase(char arr[]);
 int stringtoInt(char arr[]);
 float getTotalHours(char timeIn[], char timeOut[]);
-float getLate(char timeIn[]);
 float getOverTime(char timeIn[], char timeOut[]);
 float getSalaryRate(char employeeCode[]);
 float getRegularIncome(float totalWorkHours, float salaryRate);
@@ -42,93 +42,143 @@ float getOvertimeIncome(float totalOThrs, float salaryRate);
 float getHolidayIncome(float totalHolidayhrs, float salaryRate);
 float getSSS(float grossIncome, float salaryRate);
 float getTax(float grossIncome);
-
+int checkTimeInput(char arr[]);
 
 int main()
 {
  	struct employeeRec emp;
-	printf("\nWelcome to NC4 Payroll System\n");
+	printf("\nWelcome to NC4 Payroll System by Monica B. Barrientos\n");
+	float test;
+	test = getTotalHours("00:00", "00:00"); //7.45
+	printf("%.2f\n", test);
 	getEmployeeInfo(emp);
-		
+
 
 }
 
 void getEmployeeInfo(struct employeeRec emp){
-	int choice,ch,c,flag=0;
+	int choice,ch,c,flag=0, i;
 	FILE *fp;
 	char* searchCode;
-	char scode[20], employeecode[20];
+	char* retecode;
+	char scode[20], employeecode[20], ecode[20];
 	float salaryRate, sRate;
-   	int i;
-//   	float hatdog;
-//  	hatdog = getHolidayIncome(8, 380);
-//   	printf("hehe:%.2f\n", hatdog);
-
-	
 	do 
 		{
 		 printf("\nEmployee Info\n");
 		 printf("\nMenu\n");
-		 printf("1. Add a new employee record. \n");
-		 printf("2. Search for a certain employee and add their time-ins and time-outs. \n");
-		 printf("3. Read current time in and time outs per employee. \n");
-		 printf("4. Exit \n");
+		 printf("1. Add a new employee information. \n");
+		 printf("2. Display employee information. \n");
+		 printf("3. Add employee's time-in and time-out. \n");
+		 printf("4. Display Breakdown of Income (Test Case # 3) \n");
+		 printf("5. Exit \n");
 		 scanf("%d",&choice);
 		  
 		 switch (choice)
 		 {
 		     case 1: 
 		      	 fp=fopen("employee.txt","ab");
+		      	 if(fp!=NULL){
 		      	 	system("cls");
                     printf("Enter the Employee Code:\n");
-                    scanf("%s",emp.employeeCode);
+                    scanf("%s", ecode);
                     fflush(stdin);
+                    retecode=convertToUpperCase(ecode);
+                    strcpy(emp.employeeCode,retecode);
                     printf("Enter the Employee Name\n");
                     scanf ("%[^\n]%*c", emp.employeename);
                     fflush(stdin);
                     printf("Enter the Salary Level:\n");
                     scanf("%d", &emp.salaryLevel);
                     fwrite(&emp,sizeof(emp),1,fp);
-                    fflush(stdin);
+                    fflush(stdin);		      	 	
+				}else{
+					printf("Unable to open file.\n");
+				}
                     fclose(fp);
                     getch();
                     system("cls");
                     break;
-		     case 2:
+             case 2:
 		     		fp=fopen("employee.txt","rb");
 					system("cls");
                     printf("Enter the Employee Code\n");
                     scanf("%s",scode);
                     searchCode=convertToUpperCase(scode);
-                    while(fread(&emp,sizeof(emp),1,fp))
-                    {
-                        if(strcmp(searchCode,emp.employeeCode)==0)
-                        {
-                            printf("Employee Name: %s\n",emp.employeeCode);
-                            printf("Employee Code: %s\n",emp.employeename);
-                            printf("Salary Level: %d\n",emp.salaryLevel);
-                            if(emp.salaryLevel == 1){
-                            	salaryRate = 380.00;
-                            	printf("Salary Rate: Php %.2f /day\n", salaryRate);
-							}else if (emp.salaryLevel == 2){
-								salaryRate = 450.00;
-								printf("Salary Rate: Php %.2f /day\n", salaryRate);
-							}else if (emp.salaryLevel == 3){
-								salaryRate = 550.00;
-								printf("Salary Rate: Php %.2f /day\n", salaryRate);
-							}
-							
-							writeToDTR(emp.employeeCode);
-							
-                            getch();
-                            break;
-                        }
-                    }
+                    if(fp!=NULL){
+                    	while(fread(&emp,sizeof(emp),1,fp))
+	                    {
+	                        if(strcmp(searchCode,emp.employeeCode)==0)
+	                        {
+	                        	flag = 1;
+	                            printf("Employee Name: %s\n",emp.employeeCode);
+	                            printf("Employee Code: %s\n",emp.employeename);
+	                            printf("Salary Level: %d\n",emp.salaryLevel);
+	                            if(emp.salaryLevel == 1){
+	                            	salaryRate = 380.00;
+	                            	printf("Salary Rate: Php %.2f /day\n", salaryRate);
+								}else if (emp.salaryLevel == 2){
+									salaryRate = 450.00;
+									printf("Salary Rate: Php %.2f /day\n", salaryRate);
+								}else if (emp.salaryLevel == 3){
+									salaryRate = 550.00;
+									printf("Salary Rate: Php %.2f /day\n", salaryRate);
+								}
+	                            break;
+	                        }
+	                    }
+					}else{
+						printf("File not found!\n");
+					}
+	                    
+                    if(flag==0){
+                    	printf("User not found!\n");
+					}
                     fclose(fp);
                     getch();
                     system("cls");
                     break;
-		     case 3:
+		    case 3:
+		     		fp=fopen("employee.txt","rb");
+					system("cls");
+                    printf("Enter the Employee Code\n");
+                    scanf("%s",scode);
+                    searchCode=convertToUpperCase(scode);
+                    if(fp!=NULL){
+                    	while(fread(&emp,sizeof(emp),1,fp))
+	                    {
+	                        if(strcmp(searchCode,emp.employeeCode)==0)
+	                        {
+	                        	flag = 1;
+	                            printf("Employee Name: %s\n",emp.employeeCode);
+	                            printf("Employee Code: %s\n",emp.employeename);
+	                            printf("Salary Level: %d\n",emp.salaryLevel);
+	                            if(emp.salaryLevel == 1){
+	                            	salaryRate = 380.00;
+	                            	printf("Salary Rate: Php %.2f /day\n", salaryRate);
+								}else if (emp.salaryLevel == 2){
+									salaryRate = 450.00;
+									printf("Salary Rate: Php %.2f /day\n", salaryRate);
+								}else if (emp.salaryLevel == 3){
+									salaryRate = 550.00;
+									printf("Salary Rate: Php %.2f /day\n", salaryRate);
+								}
+								writeToDTR(emp.employeeCode);
+	                            break;
+	                        }
+	                    }
+					}else{
+						printf("File not found!\n");
+					}
+	                    
+                    if(flag==0){
+                    	printf("User not found!\n");
+					}
+                    fclose(fp);
+                    getch();
+                    system("cls");
+                    break;
+		     case 4:
 				 printf("Enter employee code to be Checked:\n");
 				 scanf("%s",employeecode);
 	             fflush(stdin);
@@ -138,7 +188,7 @@ void getEmployeeInfo(struct employeeRec emp){
 			     getch();
 				 system("cls");
 			     break;
-		    case 4:
+		     case 5:
 		    	printf("Goodbye!\n"); 
 		        break;
 		     default: 
@@ -147,7 +197,7 @@ void getEmployeeInfo(struct employeeRec emp){
 		      	system("cls");
 		        break;
 		 } 
-		} while (choice != 4);
+		} while (choice != 5);
 
 }
 
@@ -157,27 +207,40 @@ void writeToDTR(char employeeCode[]){
     int j,ans;
     char res;
     char scode[10];
-    
+    int a;
     strcpy(emp.employeeCode,employeeCode);
     fp=fopen("dtr.txt","ab");
     for(j=0;j<SIZE;j++){
-    	strcpy(emp.information[j].weekDay, DayNames[j]);
-    	printf("Enter Time in for %s\n",DayNames[j]);
-    	scanf("%s",emp.information[j].timeIn);
-    	fflush(stdin);
-    	printf("Enter Time Out for %s\n",DayNames[j]);
-    	scanf ("%[^\n]%*c", emp.information[j].timeOut);
-    	fflush(stdin);
+		strcpy(emp.information[j].weekDay, DayNames[j]);
+    	do{
+	    	printf("Enter Time in for %s\n",DayNames[j]);
+	    	scanf("%s",emp.information[j].timeIn);
+	    	fflush(stdin);
+			a = checkTimeInput(emp.information[j].timeIn);
+		}while(a==0);
+		do{
+			printf("Enter Time Out for %s\n",DayNames[j]);
+    		scanf ("%[^\n]%*c", emp.information[j].timeOut);
+    		fflush(stdin);
+    		a = checkTimeInput(emp.information[j].timeOut);
+		}while(a==0);
     	printf("Is %s a holiday? Y/N \n", DayNames[j]);
     	scanf("%c", &res);
     	ans = (res=='Y' || res == 'y')? 1 : 0;
     	emp.information[j].isHoliday = ans;
-    	printf("Enter the overtime-in for %s\n", DayNames[j]);
-    	scanf ("%s", emp.information[j].timeInOT);
-    	fflush(stdin);
-    	printf("Enter the overtime-out for %s\n", DayNames[j]);
-    	scanf ("%[^\n]%*c", emp.information[j].timeOutOT);
-    	fflush(stdin);
+    	
+    	do{
+    	    printf("Enter the overtime-in for %s\n", DayNames[j]);
+	    	scanf ("%s", emp.information[j].timeInOT);
+	    	fflush(stdin);	
+	    	a = checkTimeInput(emp.information[j].timeInOT);
+		}while(a==0);
+		do{
+			printf("Enter the overtime-out for %s\n", DayNames[j]);
+	    	scanf ("%[^\n]%*c", emp.information[j].timeOutOT);
+	    	fflush(stdin);
+	    	a = checkTimeInput(emp.information[j].timeOutOT);
+		}while(a==0);
 	}
 	printf("Enter the coverage date of this payroll: (Ex. June 1-5, 2021)\n");
 	scanf ("%[^\n]%*c", emp.dateCovered);
@@ -206,11 +269,9 @@ float getSalaryRate(char employeeCode[]){
 			}else if (emp.salaryLevel == 3){
 				salaryRate = 550.00;
 				printf("Salary Rate: Php %.2f /day\n", salaryRate);
-			}
-                        
+			}         
         }
     }
-    
     return salaryRate;
 }
 void readFromDTR(char employeeCode[], float salaryRate){
@@ -254,9 +315,12 @@ void readFromDTR(char employeeCode[], float salaryRate){
 		}
     }
     if(flag == 1){
+    	//Work hours
     	printf("Total Number of Work Hours:%.0f\n",TotalHours);
     	printf("Total Number of Holiday Work Hours:%.0f\n",totalHoliday);
     	printf("Overtime Hours:%.0f\n",totalOvertime);
+    	
+    	//Income
     	regularInc = getRegularIncome(TotalHours, salaryRate);
     	printf("Regular Income: Php %.2f\n",regularInc);
     	holidayInc = getHolidayIncome(totalHoliday, salaryRate);
@@ -271,9 +335,11 @@ void readFromDTR(char employeeCode[], float salaryRate){
     	printf("*Tax: Php %.2f\n", tax);
     	sss = getSSS(grossIncome, salaryRate);
     	printf("*SSS: Php %.2f\n", sss);
-    	printf("Net Income: %.2f\n", grossIncome - (tax + sss) + 500);
+    	
+    	//Net Income
+    	printf("Net Income: Php %.2f\n", (grossIncome - (tax + sss)) + 500); /* Weekly Net Salary Income = (WGSI - (tax + GSIS)) + allowance*/
 	}else{
-		printf("User not found!");
+		printf("Time In and Time Out Details not found!\n");
 	}
 
     fclose(fp);
@@ -288,11 +354,6 @@ int stringtoInt(char arr[]){
         d *= 100;
         d += strtol(e + 1, &e, 10);
     }
-    if( *e != '\0' ){
-    	fprintf(stderr, "invalid input\n");
-        //return 1;
-    }
-    //printf("string val = %s, int value = %d\n", arr, d);
     retVal = d;
     return retVal;
 }
@@ -392,9 +453,23 @@ float getTotalHours(char timeIn[], char timeOut[]){
 
 		if(timeOutInt >= 1700){ //late and finishes at 17:00 or more but not OT
 		printf("Late but ended on time\n");
-			lateval = getLate(timeIn);
-			printf("%.2f\n", lateval);
-			returnHrs = (float)9 - lateval;
+			out = timeOutInt/100;
+			in = timeInInt/100;
+			vals = out - in;
+			outMod = timeOutInt%100;
+			inMod = timeInInt%100;
+			vals--;
+			if(outMod < inMod){
+				diff = outMod - inMod;
+				diff += 60;
+				vals--;
+				returnHrs = vals + diff/100.0;
+			}else if (outMod > inMod){
+				diff = outMod - inMod;
+				returnHrs = vals + diff/100.0;
+			}else{
+				returnHrs = vals;
+			}					
 		}else if (timeOutInt < 1700){ //late and undertime
 		printf("Late and ended early\n");
 			out = timeOutInt/100; //hr for out
@@ -414,7 +489,7 @@ float getTotalHours(char timeIn[], char timeOut[]){
 				returnHrs = vals;
 			}
 		}
-	}else if (timeInInt < 800){ //early
+	}else if (timeInInt < 800 && timeInInt > 0){ //early
 		if(timeOutInt >= 1700){ //early and finishes at 17:00 or more but not OT
 			printf("Early but ended on time\n");
 			in1 = timeInInt/100;
@@ -443,7 +518,7 @@ float getTotalHours(char timeIn[], char timeOut[]){
 				returnHrs = vals;
 			}			
 		}
-	}else if (timeInInt == 0 || timeOutInt == 0){
+	}else if (timeInInt == 0 && timeOutInt == 0){
 		printf("Absent\n");
 		returnHrs = 0;
 	}
@@ -497,31 +572,49 @@ float getOverTime(char timeIn[], char timeOut[]){
 	
 	return retHrs;
 }
-float getLate(char timeIn[]){
-	float returnLate;
-	int timeInInt, diff, diffmod, timeMod;
-	float deci;
-	
-	timeInInt = stringtoInt(timeIn);
-	if(timeInInt > 800){
-		//printf("Late!\n");
-		diff = timeInInt - 800;
-		if(diff < 100){
-			deci = diff/60.0;
-			//printf("%f\n",deci);
-			returnLate = deci;
-		}else{
-			timeMod = diff/100; //5
-			diffmod = diff % 100; //30
-			deci = diffmod/60.00; //0.5
-			returnLate = timeMod + deci;
+
+
+int checkTimeInput(char arr[]){
+	int retVal=0,x,cnt=0;
+	int len = strlen(arr);
+	int timeinInt;
+	timeinInt = stringtoInt(arr);
+	if(timeinInt/100 < 24 && timeinInt%100 < 60){
+		if(len == 4 && arr[1] == ':'){ //1:00 1::0
+			for(x=0;x<strlen(arr);x++){
+				if(':' == arr[x]){
+					cnt++;
+				}
+			}
+			if(cnt == 1){
+				retVal = 1;
+			}
+			else{
+				printf("Invalid Input. Please Try Again.\n");
+				retVal = 0;
+			}
+		}else if(len == 5 && arr[2] == ':'){
+			for(x=0;x<strlen(arr);x++){
+				if(':' == arr[x]){
+					cnt++;
+				}
+			}
+			if(cnt == 1){
+				retVal = 2;
+			}
+			else{
+				printf("Invalid Input. Please Try Again.\n");
+				retVal = 0;
+			}
+		}
+		else{
+			printf("Invalid Input. Please Try Again.\n");
+			retVal = 0;
 		}
 	}else{
-		returnLate = 0.0;
+		printf("Invalid Input. Please Try Again.\n");
 	}
-	
-	return returnLate;
-	
+	return retVal;
 }
 
 char* convertToUpperCase(char arr[]){
