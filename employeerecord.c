@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <string.h>
 #include<stdlib.h>
+#include<time.h>
 #define SIZE 5
 const char *DayNames[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 
@@ -21,6 +22,7 @@ struct employee
     char employeeCode[20];  
     struct time information[SIZE];  
     char dateCovered[20];
+    char recordGenerated[50];
 }; 
 
 struct employeeRec{
@@ -205,6 +207,9 @@ void writeToDTR(char employeeCode[]){
     char res;
     char scode[10];
     int a;
+    time_t t;   
+    time(&t);
+    
     strcpy(emp.employeeCode,employeeCode);
     fp=fopen("dtr.txt","ab");
     for(j=0;j<SIZE;j++){
@@ -242,6 +247,7 @@ void writeToDTR(char employeeCode[]){
 	printf("Enter the coverage date of this payroll: (Ex. June 1-5, 2021)\n");
 	scanf ("%[^\n]%*c", emp.dateCovered);
     fflush(stdin);
+    strcpy(emp.recordGenerated,ctime(&t));
     fwrite(&emp,sizeof(emp),1,fp);
     fclose(fp);
 }
@@ -315,6 +321,7 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	    			printf("\t====================\t\n");
 				}
 	    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
+	    		printf("This record was made on: %s\t\t\n", emp.recordGenerated);
 			}
 	    }
 	}else{
@@ -322,9 +329,9 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	}
     if(flag == 1){
     	//Work hours
-    	printf("Total Number of Work Hours:%.0f\n",TotalHours);
-    	printf("Total Number of Holiday Work Hours:%.0f\n",totalHoliday);
-    	printf("Overtime Hours:%.0f\n",totalOvertime);
+    	printf("Total Number of Work Hours: %.0f\n",TotalHours);
+    	printf("Total Number of Holiday Work Hours: %.0f\n",totalHoliday);
+    	printf("Overtime Hours: %.0f\n",totalOvertime);
     	
     	//Income
     	regularInc = getRegularIncome(TotalHours, salaryRate);
