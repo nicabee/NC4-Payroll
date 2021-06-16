@@ -91,10 +91,10 @@ void getEmployeeInfo(struct employeeRec emp){
 				}else{
 					printf("Unable to open file.\n");
 				}
-                    fclose(fp);
-                    getch();
-                    system("cls");
-                    break;
+                fclose(fp);
+                getch();
+                system("cls");
+                break;
              case 2:
 		     		fp=fopen("employee.txt","rb");
 					system("cls");
@@ -130,11 +130,12 @@ void getEmployeeInfo(struct employeeRec emp){
                     if(flag==0){
                     	printf("User not found!\n");
 					}
+					flag=0;
                     fclose(fp);
                     getch();
                     system("cls");
                     break;
-		    case 3:
+		    	case 3:
 		     		fp=fopen("employee.txt","rb");
 					system("cls");
                     printf("Enter the Employee Code\n");
@@ -166,32 +167,32 @@ void getEmployeeInfo(struct employeeRec emp){
 					}else{
 						printf("File not found!\n");
 					}
-	                    
                     if(flag==0){
                     	printf("User not found!\n");
 					}
+					flag=0;
                     fclose(fp);
                     getch();
                     system("cls");
                     break;
-		     case 4:
-				 printf("Enter employee code to be Checked:\n");
-				 scanf("%s",employeecode);
-	             fflush(stdin);
-	             searchCode=convertToUpperCase(employeecode);
-	             sRate =  getSalaryRate(searchCode);
-			     readFromDTR(searchCode, sRate);
-			     getch();
-				 system("cls");
-			     break;
-		     case 5:
-		    	printf("Goodbye!\n"); 
-		        break;
-		     default: 
-			 	printf("Wrong Choice. Enter again\n");
-			 	getch();
-		      	system("cls");
-		        break;
+		     	case 4:
+					 printf("Enter employee code to be Checked:\n");
+					 scanf("%s",employeecode);
+		             fflush(stdin);
+		             searchCode=convertToUpperCase(employeecode);
+		             sRate =  getSalaryRate(searchCode);
+				     readFromDTR(searchCode, sRate);
+				     getch();
+					 system("cls");
+				     break;
+		     	case 5:
+			    	printf("Goodbye!\n"); 
+			        break;
+		     	default: 
+			 		printf("Wrong Choice. Enter again\n");
+			 		getch();
+		      		system("cls");
+		        	break;
 		 } 
 		} while (choice != 5);
 
@@ -433,11 +434,10 @@ float getTotalHours(char timeIn[], char timeOut[]){
 	
 	if(timeInInt == 800){
 		if(timeOutInt >= 1700){
-			printf("Regular Work Hours\n");
+			//printf("Regular Work Hours\n");
 			returnHrs = 8;
 		}else if (timeOutInt < 1700){
-			printf("Started on time but ended early\n");
-
+			//printf("Started on time but ended early\n");
 			out = timeOutInt/100; //hr for out
 			in = timeInInt/100; //hr for in
 			vals = out - in;
@@ -457,15 +457,34 @@ float getTotalHours(char timeIn[], char timeOut[]){
 		}
 		
 	}else if (timeInInt > 800){ //late
-
-		if(timeOutInt >= 1700){ //late and finishes at 17:00 or more but not OT
-		printf("Late but ended on time\n");
-			out = timeOutInt/100;
+	
+		if(timeInInt < 1200 && timeOutInt >= 1700){ // late before lunch and ends on time
+			//printf("Late but ended on time 2\n");
+			out = 1700/100;
 			in = timeInInt/100;
 			vals = out - in;
-			outMod = timeOutInt%100;
+			outMod = 1700%100;
 			inMod = timeInInt%100;
-			vals--;
+			vals--; // minus 1 hour for lunch break
+			if(outMod < inMod){
+				diff = outMod - inMod;
+				diff += 60;
+				vals--;
+				returnHrs = vals + diff/100.0;
+			}else if (outMod > inMod){
+				diff = outMod - inMod;
+				returnHrs = vals + diff/100.0;
+			}else{
+				returnHrs = vals;
+			}
+		}
+		else if(timeOutInt >= 1700){ //late and finishes at 17:00 or more but not OT
+			//printf("Late but ended on time\n");
+			out = 1700/100;
+			in = timeInInt/100;
+			vals = out - in;
+			outMod = 1700%100;
+			inMod = timeInInt%100;
 			if(outMod < inMod){
 				diff = outMod - inMod;
 				diff += 60;
@@ -477,8 +496,28 @@ float getTotalHours(char timeIn[], char timeOut[]){
 			}else{
 				returnHrs = vals;
 			}					
-		}else if (timeOutInt < 1700){ //late and undertime
-		printf("Late and ended early\n");
+		}else if (timeInInt < 1200 && timeOutInt < 1700){ //late before lunch time and ended early
+			//printf("Late b4 lunch and ended early\n");
+			out = timeOutInt/100; //hr for out
+			in = timeInInt/100; //hr for in
+			vals = out - in;
+			outMod = timeOutInt%100; //mins for out
+			inMod = timeInInt%100; //mins for in
+			vals--;
+			if(outMod < inMod){
+				diff = outMod - inMod;
+				diff += 60;
+				vals--;
+				returnHrs = vals + diff/100.0;
+			}else if (outMod > inMod){
+				diff = outMod - inMod;
+				returnHrs = vals + diff/100.0;
+			}else{
+				returnHrs = vals;
+			}
+		}
+		else if (timeOutInt < 1700){ //late and undertime
+			//printf("Late and ended early\n");
 			out = timeOutInt/100; //hr for out
 			in = timeInInt/100; //hr for in
 			vals = out - in;
@@ -499,15 +538,9 @@ float getTotalHours(char timeIn[], char timeOut[]){
 	}else if (timeInInt < 800 && timeInInt > 0){ //early
 		if(timeOutInt >= 1700){ //early and finishes at 17:00 or more but not OT
 			printf("Early but ended on time\n");
-			in1 = timeInInt/100;
-			in2 = 800/100;
-			hrs = in2 - in1;
-			in1Mod = timeInInt % 100;
-			hrs-=in1Mod/60.0;
-			returnHrs = 8 + hrs; 
+			returnHrs = 8; 
 		}else if (timeOutInt < 1700){ //early and undertime
-			printf("Early and ended early\n");
-			
+			//printf("Early and ended early\n");
 			out = timeOutInt/100; //hr for out
 			in = timeInInt/100; //hr for in
 			vals = out - in;
