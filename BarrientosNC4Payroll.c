@@ -60,10 +60,11 @@ int main()
 }
 
 void getEmployeeInfo(struct employeeRec emp){
-	int choice,ch,c,flag=0, i;
+	int choice,ch,c,flag=0, i, sentinel = 0;
 	FILE *fp;
 	char* searchCode;
 	char* retecode;
+	char* searcher;
 	char scode[20], employeecode[20], ecode[20];
 	float salaryRate, sRate;
 	do 
@@ -80,25 +81,45 @@ void getEmployeeInfo(struct employeeRec emp){
 		 switch (choice)
 		 {
 		     case 1: 
+		        printf("Enter the Employee Code:\n");
+                scanf("%s", ecode);
+                fflush(stdin);
+                searcher=convertToUpperCase(ecode);
+		     	 fp=fopen("employee.txt", "rb");
+		     	 if(fp != NULL){
+		     	 	while(fread(&emp,sizeof(emp),1,fp))
+	                    {
+	                    	if(strcmp(searcher,emp.employeeCode)==0)
+	                        {
+	                        	sentinel = 1;
+	                        }
+	                    }
+				 }else{
+					printf("Unable to open file.\n");
+				 }
+				 fclose(fp);
+
+				 if(sentinel == 0){
 		      	 fp=fopen("employee.txt","ab");
 		      	 if(fp!=NULL){
 		      	 	system("cls");
-                    printf("Enter the Employee Code:\n");
-                    scanf("%s", ecode);
-                    fflush(stdin);
-                    retecode=convertToUpperCase(ecode);
-                    strcpy(emp.employeeCode,retecode);
+		      	 	printf("%s\n", searcher);
+                    strcpy(emp.employeeCode,searcher);
                     printf("Enter the Employee Name\n");
                     scanf ("%[^\n]%*c", emp.employeename);
                     fflush(stdin);
                     printf("Enter the Salary Level:\n");
                     scanf("%d", &emp.salaryLevel);
                     fwrite(&emp,sizeof(emp),1,fp);
-                    fflush(stdin);		      	 	
+	                fflush(stdin);		      	 	
 				}else{
 					printf("Unable to open file.\n");
 				}
-                fclose(fp);
+	            fclose(fp);				 	
+				}else{
+					printf("Employee code already exists!\n");
+				}
+				sentinel=0;
                 getch();
                 system("cls");
                 break;
