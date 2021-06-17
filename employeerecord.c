@@ -288,7 +288,7 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	struct employee emp;
 	FILE* fp;
 	fp=fopen("dtr.txt","rb");
-	int x, flag=0;
+	int x, flag=0, sentinel = 0;
 	char day[5];
 	float TotalHours = 0, retHrs = 0, totalOvertime=0, totalHoliday=0, retOThrs=0, regularInc, OTInc, holidayInc, sss, tax, grossIncome;
 	if(fp!=NULL){
@@ -298,6 +298,7 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	    {
 	    	if(strcmp(employeeCode,emp.employeeCode)==0){
 	    		flag = 1;
+	    		sentinel = 1;
 	    		for(x=0;x<SIZE;x++){
 	    			printf("\t====================\t\t\n");
 	    			printf("\t\t%s\t\t\n", emp.information[x].weekDay);
@@ -320,43 +321,50 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	    				totalOvertime+=retOThrs;
 					}
 	    			
-	    			printf("\t====================\t\n");
+	    			
 				}
-	    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
-	    		printf("\t====================\t\n");
+				if(flag == 1){
+					printf("\t====================\t\n");
+					printf("Coverage Date: %s\t\t\n", emp.dateCovered);
+				    //Work hours
+				    printf("Total Number of Work Hours: %.0f\n",TotalHours);
+				    printf("Total Number of Holiday Work Hours: %.0f\n",totalHoliday);
+				    printf("Overtime Hours: %.0f\n",totalOvertime);
+				    	
+				    //Income
+				    regularInc = getRegularIncome(TotalHours, salaryRate);
+				    printf("Regular Income: Php %.2f\n",regularInc);
+				    holidayInc = getHolidayIncome(totalHoliday, salaryRate);
+				    printf("Holiday Income: Php %.2f\n",holidayInc);
+				    OTInc = getOvertimeIncome(totalOvertime, salaryRate);
+				    printf("Overtime Income: Php %.2f\n",OTInc);
+					grossIncome = OTInc + regularInc + holidayInc;
+				    printf("Gross Income: Php %.2f\n", grossIncome);
+				    	
+				    //Deductions
+				    tax = getTax(grossIncome);
+				    printf("*Tax: Php %.2f\n", tax);
+				    sss = getSSS(grossIncome, salaryRate);
+				    printf("*SSS: Php %.2f\n", sss);
+	  							    	
+				    //Net Income
+				    printf("Net Income: Php %.2f\n", (grossIncome - (tax + sss)) + 500); /* Weekly Net Salary Income = (WGSI - (tax + GSIS)) + allowance*/
+				    printf("\t====================\t\n");
+					
+				}else{
+					printf("Time In and Time Out Details not found!\n");
+				}
+				flag=0;
+				TotalHours = 0, retHrs = 0, totalOvertime=0, totalHoliday=0, retOThrs=0;
+				regularInc = 0, OTInc = 0, holidayInc = 0, sss = 0, tax = 0, grossIncome = 0;
 			}
 	    }
+	    if(sentinel == 0){
+		printf("Time In and Time Out Details not found!\n");
+		}
 	}else{
 		printf("Unable to open dtr.txt file!\n");
 	}
-    if(flag == 1){
-    	//Work hours
-    	printf("Total Number of Work Hours: %.0f\n",TotalHours);
-    	printf("Total Number of Holiday Work Hours: %.0f\n",totalHoliday);
-    	printf("Overtime Hours: %.0f\n",totalOvertime);
-    	
-    	//Income
-    	regularInc = getRegularIncome(TotalHours, salaryRate);
-    	printf("Regular Income: Php %.2f\n",regularInc);
-    	holidayInc = getHolidayIncome(totalHoliday, salaryRate);
-    	printf("Holiday Income: Php %.2f\n",holidayInc);
-    	OTInc = getOvertimeIncome(totalOvertime, salaryRate);
-    	printf("Overtime Income: Php %.2f\n",OTInc);
-		grossIncome = OTInc + regularInc + holidayInc;
-    	printf("Gross Income: Php %.2f\n", grossIncome);
-    	
-    	//Deductions
-    	tax = getTax(grossIncome);
-    	printf("*Tax: Php %.2f\n", tax);
-    	sss = getSSS(grossIncome, salaryRate);
-    	printf("*SSS: Php %.2f\n", sss);
-    	
-    	//Net Income
-    	printf("Net Income: Php %.2f\n", (grossIncome - (tax + sss)) + 500); /* Weekly Net Salary Income = (WGSI - (tax + GSIS)) + allowance*/
-	}else{
-		printf("Time In and Time Out Details not found!\n");
-	}
-
     fclose(fp);
 }
 int stringtoInt(char arr[]){
