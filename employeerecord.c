@@ -22,9 +22,6 @@ struct employee
     char employeeCode[20];  
     struct time information[SIZE];  
     char dateCovered[20];
-    char recordGeneratedMonth[10];
-    int recordGeneratedDay;
-    int recordGeneratedYear;
 }; 
 
 struct employeeRec{
@@ -253,13 +250,6 @@ void writeToDTR(char employeeCode[]){
 	printf("Enter the coverage date of this payroll: (Ex. June 1-5, 2021)\n");
 	scanf ("%[^\n]%*c", emp.dateCovered);
     fflush(stdin);
-    printf("Input the month today:\n");
-	scanf ("%[^\n]%*c", emp.recordGeneratedMonth);
-    fflush(stdin);
-    printf("Input the day today:\n");
-	scanf ("%d", &emp.recordGeneratedDay);
-    printf("Input the year today:\n");
-	scanf ("%d", &emp.recordGeneratedYear);	
     fwrite(&emp,sizeof(emp),1,fp);
     fclose(fp);
 }
@@ -333,7 +323,6 @@ void readFromDTR(char employeeCode[], float salaryRate){
 	    			printf("\t====================\t\n");
 				}
 	    		printf("Coverage Date: %s\t\t\n", emp.dateCovered);
-	    		printf("This record was made on: %s %d, %d\n", emp.recordGeneratedMonth, emp.recordGeneratedDay, emp.recordGeneratedYear);
 	    		printf("\t====================\t\n");
 			}
 	    }
